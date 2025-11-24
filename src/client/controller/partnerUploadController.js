@@ -1,11 +1,8 @@
 import { validateUniqueLink } from '../../admin/model/uniqueLinksModel.js';
 import { createBenefitModel } from '../../admin/model/pageBenefitsModel.js';
-import { createBusinessModel } from '../../admin/model/pageBusinessModel.js';
+import { createBusiness } from '../../admin/model/pageBusinessModel.js';
 
-/**
- * Validar token (sin autenticación)
- * GET /api/partner/upload/:token/validate
- */
+
 export const validateToken = async (req, res) => {
     try {
         const { token } = req.params;
@@ -35,10 +32,7 @@ export const validateToken = async (req, res) => {
     }
 };
 
-/**
- * Subir beneficio mediante token (sin autenticación)
- * POST /api/partner/upload/:token/benefit
- */
+
 export const uploadBenefit = async (req, res) => {
     try {
         const { token } = req.params;
@@ -54,7 +48,6 @@ export const uploadBenefit = async (req, res) => {
             });
         }
 
-        // Normalizar datos del beneficio
         const normalizedData = {
             name: benefitData.name,
             q_of_codes: benefitData.q_of_codes !== undefined && benefitData.q_of_codes !== null 
@@ -66,7 +59,6 @@ export const uploadBenefit = async (req, res) => {
             id_business_discount: parseInt(benefitData.id_business_discount, 10)
         };
 
-        // Validaciones básicas
         if (!normalizedData.name || !normalizedData.id_business_discount) {
             return res.status(400).json({
                 ok: false,
@@ -74,7 +66,6 @@ export const uploadBenefit = async (req, res) => {
             });
         }
 
-        // Crear el beneficio
         const newBenefit = await createBenefitModel(normalizedData);
 
         res.status(201).json({
