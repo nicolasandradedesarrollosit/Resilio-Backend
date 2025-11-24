@@ -27,6 +27,20 @@ export async function getBusiness (limit, offset) {
     }
 }
 
+export async function getAllBusinessModel () {
+    try {
+        const { rows } = await pool.query(
+            `
+            SELECT * FROM business
+            ORDER BY name ASC
+            `
+        );
+        return rows;
+    } catch (err) {
+        throw err;
+    }
+}
+
 export async function createBusiness (businessData) {
     const { name, location, url_image_business } = businessData;
     const { rows } = await pool.query(

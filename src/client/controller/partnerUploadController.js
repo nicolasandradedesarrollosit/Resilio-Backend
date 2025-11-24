@@ -1,6 +1,39 @@
 import { validateUniqueLink } from '../../admin/model/uniqueLinksModel.js';
 import { createBenefitModel } from '../../admin/model/pageBenefitsModel.js';
-import { createBusiness } from '../../admin/model/pageBusinessModel.js';
+import { createBusiness as createBusinessModel, getAllBusinessModel } from '../../admin/model/pageBusinessModel.js';
+
+
+export const getBusinessList = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        // Validar token antes de permitir acceso
+        const validation = await validateUniqueLink(token);
+
+        if (!validation.valid) {
+            return res.status(400).json({
+                ok: false,
+                message: validation.error
+            });
+        }
+
+        // Obtener lista de negocios
+        const businesses = await getAllBusinessModel();
+
+        res.json({
+            ok: true,
+            data: businesses
+        });
+
+    } catch (error) {
+        console.error('Error al obtener negocios:', error);
+        res.status(500).json({
+            ok: false,
+            message: 'Error al obtener lista de negocios',
+            error: error.message
+        });
+    }
+};
 
 
 export const validateToken = async (req, res) => {
