@@ -35,6 +35,8 @@ app.set('trust proxy', true);
 
 const allowedOrigins = [
     'https://nicolasandradedesarrollosit.github.io',
+    'http://localhost:5173',
+    'http://localhost:3000',
     process.env.URL_FRONT 
 ].filter(Boolean);
 
@@ -45,7 +47,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'"],
             scriptSrc: ["'self'"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", process.env.URL_FRONT]
+            connectSrc: ["'self'", process.env.URL_FRONT, 'http://localhost:5173', 'http://localhost:3000']
         }
     }
 }));

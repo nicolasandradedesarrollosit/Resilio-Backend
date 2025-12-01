@@ -22,6 +22,7 @@ build/
 out/
 .tmp/
 temp/
+supabase/
 
 # Cobertura de tests
 coverage/
