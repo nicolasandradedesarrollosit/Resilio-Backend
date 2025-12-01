@@ -19,6 +19,7 @@ import pageBenefitRoute from './admin/route/pageBenefitRoute.js';
 import pageBusinessRoute from './admin/route/pageBusinessRoute.js';
 import uniqueLinksRoute from './admin/route/uniqueLinksRoute.js';
 import partnerUploadRoute from './client/route/partnerUploadRoute.js';
+import businessUnilinkRoute from './client/route/businessUnilinkRoute.js';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -198,6 +199,7 @@ app.use('/api', partnersRoute);
 app.use('/api' , benefitsRoute);
 app.use('/api/admin', uniqueLinksRoute);
 app.use('/api', partnerUploadRoute); // Rutas públicas sin autenticación
+app.use('/api', businessUnilinkRoute); // Rutas públicas para unilinks de negocios
 app.use('/api', pageUserAdminRoute);
 app.use('/api', pageEventsRoute);
 app.use('/api', pageBenefitRoute);

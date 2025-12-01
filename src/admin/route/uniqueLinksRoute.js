@@ -1,12 +1,14 @@
 import express from 'express';
 import { requireAdmin } from '../../middlewares/authJWT.js';
 import {
-    createLink
+    createLink,
+    createBusinessLink
 } from '../controller/uniqueLinksController.js';
 
 const router = express.Router();
 
-// Ruta protegida para admins - Solo crear enlaces
-router.post('/unique-links', requireAdmin, createLink);
+// Rutas protegidas para admins
+router.post('/unique-links', requireAdmin, createLink); // Para beneficios
+router.post('/unique-links/business', requireAdmin, createBusinessLink); // Para negocios
 
 export default router;
