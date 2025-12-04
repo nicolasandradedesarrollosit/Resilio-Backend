@@ -12,6 +12,7 @@ export function hashToken(token){
 export function signJWT(user){
     const payload = {
         sub: user.id,
+        role: user.role // Include role in token
     };
     
     const options = {

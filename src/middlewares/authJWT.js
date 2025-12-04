@@ -18,6 +18,34 @@ export async function requireAuth(req, res, next){
         
         const payload = verifyAccess(token);
         
+        // Check if this is a business token
+        if (payload.role === 'business') {
+            const { findBusinessById } = await import('../client/model/businessModel.js');
+            const business = await findBusinessById(payload.sub);
+            
+            if (!business) {
+                return res.status(401).json({ 
+                    ok: false, 
+                    message: 'Negocio no encontrado' 
+                });
+            }
+            
+            if (!business.is_active) {
+                return res.status(403).json({ 
+                    ok: false, 
+                    message: 'Tu cuenta ha sido suspendida. Contacta con soporte para más información.' 
+                });
+            }
+            
+            req.user = {
+                id: parseInt(payload.sub, 10),
+                tokenVersion: payload.version,
+                role: 'business'
+            };
+            
+            return next();
+        }
+        
         // Verificar que el usuario no esté baneado
         const { findOneById } = await import('../client/model/userModel.js');
         const user = await findOneById(payload.sub);

@@ -2,10 +2,6 @@ import { validateUniqueLink } from '../../admin/model/uniqueLinksModel.js';
 import { pool } from '../../config/db.js';
 import { hashPassword } from '../../helpers/hashing.js';
 
-/**
- * Validar token de unilink para negocios
- * GET /api/business/upload/:token/validate
- */
 export const validateBusinessToken = async (req, res) => {
     try {
         const { token } = req.params;
@@ -35,10 +31,6 @@ export const validateBusinessToken = async (req, res) => {
     }
 };
 
-/**
- * Crear negocio con autenticación mediante unilink
- * POST /api/business/upload/:token/register
- */
 export const registerBusinessViaUnilink = async (req, res) => {
     try {
         const { token } = req.params;
@@ -57,7 +49,6 @@ export const registerBusinessViaUnilink = async (req, res) => {
             });
         }
 
-        // Validaciones básicas
         if (!businessData.name || !businessData.email || !businessData.password) {
             return res.status(400).json({
                 ok: false,
@@ -65,7 +56,6 @@ export const registerBusinessViaUnilink = async (req, res) => {
             });
         }
 
-        // Validar formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(businessData.email)) {
             return res.status(400).json({
@@ -74,7 +64,6 @@ export const registerBusinessViaUnilink = async (req, res) => {
             });
         }
 
-        // Verificar si el email ya existe
         const { rows: existingBusiness } = await pool.query(
             'SELECT id FROM business WHERE email = $1',
             [businessData.email.toLowerCase()]
@@ -87,10 +76,8 @@ export const registerBusinessViaUnilink = async (req, res) => {
             });
         }
 
-        // Hashear contraseña
         const password_hash = await hashPassword(businessData.password);
 
-        // Crear el negocio con autenticación
         const { rows } = await pool.query(
             `INSERT INTO business 
             (name, location, url_image_business, email, password_hash, email_verified, is_active)
@@ -102,8 +89,8 @@ export const registerBusinessViaUnilink = async (req, res) => {
                 businessData.url_image_business || null,
                 businessData.email.toLowerCase(),
                 password_hash,
-                false, // email_verified
-                true   // is_active
+                false, 
+                true   
             ]
         );
 
@@ -128,15 +115,11 @@ export const registerBusinessViaUnilink = async (req, res) => {
     }
 };
 
-/**
- * Obtener información del negocio (para verificar si ya existe)
- * GET /api/business/upload/:token/check-email/:email
- */
+
 export const checkBusinessEmail = async (req, res) => {
     try {
         const { token, email } = req.params;
 
-        // Validar token
         const validation = await validateUniqueLink(token);
 
         if (!validation.valid) {
@@ -146,7 +129,6 @@ export const checkBusinessEmail = async (req, res) => {
             });
         }
 
-        // Verificar si el email existe
         const { rows } = await pool.query(
             'SELECT id FROM business WHERE email = $1',
             [email.toLowerCase()]

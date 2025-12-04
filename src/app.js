@@ -13,6 +13,7 @@ import bannerRoute from './client/route/bannerRoute.js';
 import eventsRoute from './client/route/eventsRoutes.js';
 import partnersRoute from './client/route/partnersRoute.js';
 import benefitsRoute from './client/route/myBenefitsRoute.js';
+import businessRoute from './client/route/businessRoute.js';
 import pageUserAdminRoute from './admin/route/pageUserRoute.js';
 import pageEventsRoute from './admin/route/pageEventsRoute.js';
 import pageBenefitRoute from './admin/route/pageBenefitRoute.js';
@@ -81,13 +82,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Rate limiter general para todas las rutas API
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // máximo 100 requests por IP en 15 minutos
+    max: 500, // máximo 500 requests por IP en 15 minutos
     message: {
         ok: false,
         message: 'Demasiadas solicitudes desde esta IP, por favor intenta más tarde.'
     },
     standardHeaders: true, // Retorna info de rate limit en los headers `RateLimit-*`
     legacyHeaders: false, // Deshabilita headers `X-RateLimit-*`
+    validate: { trustProxy: false }, // Deshabilita la validación estricta de trust proxy
     handler: (req, res) => {
         console.warn(`[RATE LIMIT] IP ${req.ip} excedió el límite general en ${req.path}`);
         res.status(429).json({
@@ -100,12 +102,13 @@ const generalLimiter = rateLimit({
 // Rate limiter estricto para autenticación (login, register)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // máximo 5 intentos en 15 minutos
+    max: 20, // máximo 20 intentos en 15 minutos
     message: {
         ok: false,
         message: 'Demasiados intentos de autenticación. Por favor, intenta más tarde.'
     },
     skipSuccessfulRequests: true, // No cuenta requests exitosos
+    validate: { trustProxy: false }, // Deshabilita la validación estricta de trust proxy
     handler: (req, res) => {
         console.warn(`[SECURITY] IP ${req.ip} excedió límite de autenticación en ${req.path}`);
         res.status(429).json({
@@ -123,6 +126,7 @@ const passwordResetLimiter = rateLimit({
         ok: false,
         message: 'Demasiados intentos de recuperación de contraseña. Por favor, intenta más tarde.'
     },
+    validate: { trustProxy: false }, // Deshabilita la validación estricta de trust proxy
     handler: (req, res) => {
         console.warn(`[SECURITY] IP ${req.ip} excedió límite de recuperación de contraseña`);
         res.status(429).json({
@@ -140,6 +144,7 @@ const uploadLimiter = rateLimit({
         ok: false,
         message: 'Demasiadas subidas de archivos. Por favor, intenta más tarde.'
     },
+    validate: { trustProxy: false }, // Deshabilita la validación estricta de trust proxy
     handler: (req, res) => {
         console.warn(`[RATE LIMIT] IP ${req.ip} excedió límite de uploads`);
         res.status(429).json({
@@ -154,6 +159,7 @@ app.use('/api/', generalLimiter);
 
 // Aplicar rate limiters específicos
 app.use('/api/log-in', authLimiter);
+app.use('/api/business-login', authLimiter);
 app.use('/api/register', authLimiter);
 app.use('/api/auth/google', authLimiter); // Google OAuth también necesita límite
 app.use('/api/verify-email', authLimiter); // Verificación de email
@@ -197,6 +203,7 @@ app.use('/api', bannerRoute);
 app.use('/api', eventsRoute);
 app.use('/api', partnersRoute);
 app.use('/api' , benefitsRoute);
+app.use('/api', businessRoute);
 app.use('/api/admin', uniqueLinksRoute);
 app.use('/api', partnerUploadRoute); // Rutas públicas sin autenticación
 app.use('/api', businessUnilinkRoute); // Rutas públicas para unilinks de negocios
